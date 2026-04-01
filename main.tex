@@ -92,11 +92,125 @@ Drugi obwód realizuje równanie kinematyczne. Jego zadaniem jest całkowanie w 
 \end{itemize}
 
 \section{Praca "prądnicowa" silnika}
-\subsection{napięcie fazowe i miedzyfazowe}
+\subsection{Napięcie fazowe}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/wykresy_fazowe.png}
+    \caption{Napięcia fazowe silnika BLDC podczas rozruchu: $V_{UA}$ (czerwony), 
+             $V_{UB}$ (niebieski), $V_{UC}$ (zielony)}
+    \label{fig:napiecia_fazowe}
+\end{figure}
 
+Wykres przedstawia przebiegi napięć fazowych $V_{UA}$, $V_{UB}$ oraz $V_{UC}$ 
+generowanych przez silnik BLDC pracujący w trybie prądnicowym podczas rozruchu 
+od stanu spoczynku. Symulacja obejmuje przedział czasowy od $t = 0$ do $t = 1{,}9\,\text{s}$.
 
+Bezpośrednio po uruchomieniu ($t \approx 0$) amplitudy wszystkich trzech napięć 
+fazowych są bliskie zeru, co wynika z zerowej prędkości kątowej wirnika -- 
+generowana siła elektromotoryczna jest wprost proporcjonalna do $\omega_m$, 
+zgodnie z zależnością:
+
+\begin{equation}
+    e_k = k_e \cdot \omega_m \cdot f(\theta_e)
+    \label{eq:sem_fazowa}
+\end{equation}
+
+\noindent gdzie $k_e$ jest stałą elektromotoryczną maszyny, a $f(\theta_e)$ 
+opisuje trapezoidalny kształt przebiegu w funkcji położenia elektrycznego wirnika.
+
+W miarę upływu czasu i narastania prędkości kątowej amplitudy napięć fazowych 
+systematycznie rosną, osiągając wartości rzędu $\pm 90\,\text{V}$ pod koniec 
+symulacji. Trzy przebiegi są względem siebie przesunięte o $120°$ elektrycznych, 
+co odpowiada symetrycznej budowie trójfazowej maszyny.
+
+Charakterystyczny trapezoidalny kształt przebiegów -- widoczny wyraźnie 
+w końcowej fazie symulacji, gdy okres jest dostatecznie krótki -- jest cechą 
+konstytutywną silników BLDC, odróżniającą je od maszyn synchronicznych 
+z sinusoidalnym rozkładem indukcji w szczelinie powietrznej. Płaski 
+``grzbiet'' trapezu odpowiada przedziałowi kątowemu, w którym dany biegun 
+magnetyczny wirnika jest w pełni naprzeciwko uzwojenia stojana.
+\subsection{Napięcie międzyfazowe}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/wykresy_miedzyfazowe.png}
+    \caption{Napięcia międzyfazowe silnika BLDC podczas rozruchu: 
+             $V_{UA,UB}$ (zielony), $V_{UB,UC}$ (niebieski), $V_{UC,UA}$ (czerwony)}
+    \label{fig:napiecia_miedzyfazowe}
+\end{figure}
+
+Wykres przedstawia przebiegi napięć międzyfazowych $V_{AB}$, $V_{BC}$ oraz $V_{CA}$ 
+wyznaczonych jako różnice odpowiednich napięć fazowych. Analogicznie do napięć 
+fazowych, amplitudy narastają od zera wraz z rosnącą prędkością kątową wirnika.
+
+Napięcia międzyfazowe zachowują trapezoidalny kształt charakterystyczny dla 
+maszyn BLDC, przy czym ich wartość szczytowa jest $\sqrt{3}$~razy większa 
+od amplitudy napięć fazowych:
+
+\begin{equation}
+    U_{mf} = \sqrt{3} \cdot U_f
+    \label{eq:napiecie_miedzyfazowe}
+\end{equation}
+
+Pod koniec symulacji wartości szczytowe osiągają około $\pm 180\,\text{V}$, 
+co pozostaje w zgodzie z powyższą zależnością dla $U_f \approx 90\,\text{V}$. 
+Przebiegi są wzajemnie przesunięte o $120°$ elektrycznych, zachowując 
+symetrię trójfazową układu.
+\subsection{Sygnały czujników Halla}
+Masz rację, przepraszam! Teraz widzę — to są prostokąty 0/1, tylko są **tak wąskie** względem całej osi czasu że wyglądają jak linie. Wykres jest poprawny.
+
+Problem jest ten sam co wcześniej — **za długi zakres czasu**. Na początku symulacji wirnik kręci się wolno więc okresy są długie i widać prostokąty, ale pod koniec okresy są bardzo krótkie i zbocza zlewają się wizualnie.
+
+Wykres jest **merytorycznie poprawny**, możesz go opisać. Oto LaTeX:
+
+```latex
 \subsection{Sygnały czujników Halla}
 
-\subsection{Prędkość i położenie}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/czujniki_Halla.png}
+    \caption{Sygnały czujników Halla podczas rozruchu: 
+             $V_{HALL\_A}$ (zielony), $V_{HALL\_B}$ (niebieski), $V_{HALL\_C}$ (czerwony)}
+    \label{fig:hall}
+\end{figure}
 
+Wykres przedstawia przebiegi sygnałów trzech czujników Halla rozmieszczonych 
+w stojanie maszyny w odstępach $120°$ elektrycznych. Każdy czujnik generuje 
+sygnał logiczny o poziomach $0\,\text{V}$ i $1\,\text{V}$, zmieniający stan 
+w momencie, gdy wirujący magnes trwały przekracza jego pozycję.
+
+Każdy sygnał pozostaje w stanie wysokim przez $180°$ elektrycznych, 
+a następnie przez kolejne $180°$ w stanie niskim, co odpowiada 
+jednej pełnej parze biegunów wirnika. Trzy sygnały tworzą łącznie 
+sześć różnych kombinacji stanów logicznych w obrębie jednego okresu 
+elektrycznego -- każda kombinacja identyfikuje jednoznacznie jeden 
+z sześciu sektorów komutacyjnych:
+
+\begin{equation}
+    \text{stan} = 4 \cdot H_A + 2 \cdot H_B + H_C \in \{1,2,3,4,5,6\}
+    \label{eq:stan_halla}
+\end{equation}
+
+Wraz z rosnącą prędkością kątową wirnika okresy przełączeń skracają się, 
+co na wykresie objawia się zagęszczaniem zbocz sygnałów w końcowej 
+fazie symulacji.
+```
+\subsection{Prędkość i położenie kątowe}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/predkoscpolozenie.png}
+    \caption{Prędkość kątowa $V(\omega)$ (niebieski) oraz położenie kątowe 
+             $V(\theta)$ (zielony) podczas rozruchu}
+    \label{fig:omega_theta}
+\end{figure}
+
+Wykres przedstawia jednocześnie dwa sygnały mechaniczne maszyny: 
+prędkość kątową wirnika $\omega_m$ oraz elektryczne położenie kątowe $\theta_e$,
+wyznaczone przez analogowe obwody całkujące modelu.
+
+Prędkość kątowa $\omega_m$ narasta od zera zgodnie z charakterystyką 
+wykładniczą, dążąc asymptotycznie do wartości ustalonej wyznaczonej 
+przez równowagę momentu napędowego i strat mechanicznyc
 \end{document}
