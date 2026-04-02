@@ -144,12 +144,7 @@ systematycznie rosną, osiągając wartości rzędu $\pm 90\,\text{V}$ pod konie
 symulacji. Trzy przebiegi są względem siebie przesunięte o $120^{\circ}$ elektrycznych, 
 co odpowiada symetrycznej budowie trójfazowej maszyny.
 
-Charakterystyczny trapezoidalny kształt przebiegów -- widoczny wyraźnie 
-w końcowej fazie symulacji, gdy okres jest dostatecznie krótki -- jest cechą 
-konstytutywną silników BLDC, odróżniającą je od maszyn synchronicznych 
-z sinusoidalnym rozkładem indukcji w szczelinie powietrznej. Płaski 
-``grzbiet'' trapezu odpowiada przedziałowi kątowemu, w którym dany biegun 
-magnetyczny wirnika jest w pełni naprzeciwko uzwojenia stojana.
+Trapezoidalny kształt tych przebiegów to podstawowa cecha silników BLDC, która wynika z tego, jak nawinięte są cewki i jak ułożone są magnesy. Tym różnią się one od zwykłych silników synchronicznych (PMSM), które generują ładną sinusoidę. Płaski ``grzbiet'' trapezu odpowiada przedziałowi kątowemu, w którym dany biegun magnetyczny wirnika jest w pełni naprzeciwko uzwojenia stojana.
 
 \subsection{Napięcia międzyfazowe}
 
@@ -167,9 +162,7 @@ ich amplitudy narastają od zera wraz z rosnącą prędkością kątową wirnika
 
 Przebiegi zachowują trapezoidalny kształt charakterystyczny dla maszyn BLDC
 i są wzajemnie przesunięte o $120^{\circ}$ elektrycznych.
-Obserwowana wartość szczytowa rzędu $\pm 180\,\text{V}$ wynika z superpozycji
-dwóch napięć fazowych o amplitudzie $\approx 90\,\text{V}$,
-w chwilach gdy oba przebiegi osiągają plateau trapezu z przeciwnymi znakami.
+Wartość szczytowa wynosi około $\pm180$ V. Wynika to po prostu z różnicy dwóch napięć fazowych (gdy jedna faza ma +90V, a druga -90V, różnica między nimi to 180V).
 
 \subsection{Sygnały czujników Halla}
 
@@ -209,17 +202,7 @@ Wykres przedstawia jednocześnie dwa sygnały mechaniczne maszyny:
 prędkość kątową wirnika $\omega_m$ oraz elektryczne położenie kątowe $\theta_e$,
 wyznaczone przez analogowe obwody całkujące modelu.
 
-Prędkość kątowa $\omega_m$ narasta od zera zgodnie z charakterystyką 
-wykładniczą, dążąc asymptotycznie do wartości ustalonej wyznaczonej 
-przez równowagę momentu napędowego i strat mechanicznych.Stała 
-czasowa tego procesu jest zdeterminowana przez stosunek momentu 
-bezwładności wirnika do współczynnika tłumienia:
-
-\begin{equation}
-    \tau = \frac{J}{B}
-    \label{eq:stala_czasowa}
-\end{equation}
-
+Prędkość kątowa $\omega_m$ płynnie rośnie od zera, aż osiągnie wartość ustaloną. Dzieje się to w momencie, gdy zjawisko tarcia (rezystor R1) zrównoważy napędzający nas moment wymuszony z zewnątrz.\\
 Położenie kątowe $\theta_e$ jest całką w czasie prędkości kątowej, 
 zgodnie z zależnością kinematyczną $\theta_e = \int_0^t \omega_m \, d\tau$.
 Na wykresie objawia się to przebiegiem zbliżonym do liniowego -- 
