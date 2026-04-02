@@ -1,42 +1,62 @@
-\documentclass[12pt,a4paper]{article}
+\documentclass[12pt]{article}
 
-% --- PAKIETY JĘZYKOWE I KODOWANIE ---
+\pdfobjcompresslevel=3    % compress PDF objects
+\pdfcompresslevel=9       % compress streams more (0..9)
+\pdfminorversion=4
+
+
+\usepackage[utf8]{inputenc} % remove if using XeLaTeX or LuaLaTeX
 \usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage[polish]{babel} % Dodaj to, jeśli piszesz po polsku (ładne przenoszenie wyrazów)
 
-% --- GEOMETRIA STRONY ---
+% Layout & graphics
 \usepackage[a4paper, total={7.5in, 9in}]{geometry}
+\usepackage{graphicx}              % images
+\usepackage[dvipsnames,table]{xcolor} % single xcolor invocation (keeps table option)
 
-% --- MATEMATYKA I SYMBOLE ---
+% Math & symbols
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{gensymb} % Symbole typu stopnie itp.
-
-% --- GRAFIKA I POZYCJONOWANIE ---
-\usepackage{graphicx} 
-\usepackage{float} % Pozwala użyć [H] przy obrazkach
-\usepackage{caption}
-\usepackage{subcaption}
-% Uwaga: subfig i subcaption czasem się gryzą. Lepiej trzymać się subcaption.
-
-% --- TABELE ---
-\usepackage{multirow}
+\usepackage{gensymb}
 \usepackage{array}
-\usepackage[table, dvipsnames]{xcolor} % Poprawione dvipsnames
 
-% --- TYPOGRAFIA I WYGLĄD ---
+% Typography & layout helpers
 \usepackage{microtype}
+\usepackage{float}                 % [H] placement
+\usepackage{caption}
+\usepackage{subcaption}            % modern subfigure support (do NOT load subfig)
+\usepackage{multirow}
 \usepackage{titlesec}
-\title{Wprowadzenie do napędu BLDC}
-\author{Zuzanna Andrzejak, Jan Andrzejewski, Mateusz Banaszak}
-\date{}
 
+\usepackage{lmodern}
+\usepackage{microtype}
+
+\definecolor{xppblue}{RGB}{37, 150, 190}
 
 \begin{document}
-\maketitle
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|m{4cm}|m{8cm}|m{2cm}|}
+\hline
+\multicolumn{2}{|c|}{\cellcolor{xppblue}\textcolor[rgb]{1,1,1}{Politechnika Poznańska}}  & \multicolumn{1}{c|}{\multirow{3}{*}{\resizebox{14mm}{!}{\includegraphics{images/logo.png}}}}\\ 
+\multicolumn{2}{|c|}{\cellcolor{xppblue}\textcolor[rgb]{1,1,1}{Wydział Automatyki, Robotyki i Elektrotechniki}} & \\ 
+\multicolumn{2}{|c|}{\cellcolor{xppblue}\textcolor[rgb]{1,1,1}{Instytut Robotyki i Inteligencji Maszynowej}} & \\ 
+\hline 
+\multicolumn{1}{|c|}{Dz>AiR>Sem6} & \multicolumn{1}{c|}{Automatyka układów napedowych} & \multicolumn{1}{c|}{2025/26 (s.letni)} \\
+\hline
+Zuzanna Andrzejak \par Jan Andrzejewski \par Mateusz Banaszak & \large{\textbf{Wprowadzenie do napędu BLDC}} & Data wyk.:\par 01.04.2026 \\
+\hline
+Grupa L8  &  &  \\
+\hline
+\end{tabular}
+\end{table}	
+
 
 \section{Omówienie modelu silnika BLDC}
+Podczas zajęć laboratoryjnych przeanalizowano budowę oraz zasadę działania bezszczotkowego silnika prądu stałego (\textit{Brushless Direct-Current motor} -- BLDC). W odróżnieniu od klasycznych maszyn komutatorowych, w silniku typu BLDC wyeliminowano szczotki, co wymusiło konstrukcyjne odwrócenie ról poszczególnych podzespołów. Funkcję twornika pełni tutaj nieruchomy, uzwojony \textbf{stojan}, natomiast wzbudzenie realizowane jest przez \textbf{wirnik} wyposażony w magnesy trwałe. 
+Brak mechanicznego komutatora sprawia, że utrzymanie ciągłości ruchu wymaga zastosowania zewnętrznego układu elektronicznego, który komutuje prąd w uzwojeniach stojana w ścisłej zależności od aktualnego położenia wirnika.
+\\
+
 W środowisku LTSpice część mechaniczna została podzielona na dwa powiązane ze sobą bloki obwodowe, 
 realizujące odpowiednio równanie dynamiki ruchu obrotowego oraz równanie kinematyczne. 
 Wykorzystano tu bezpośrednią analogię elektromechaniczną, w której momenty obrotowe 
@@ -45,9 +65,9 @@ moment bezwładności przez kondensator, a współczynnik tarcia przez rezystanc
 
 \subsection{Obwód dynamiki wirnika}
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/dynamika_wirnika.png}
+    \includegraphics[width=0.7\textwidth]{images/dynamika_wirnika.png}
     \caption{Obwód przedstawiający dynamikę ruchu obrotowego.}
     \label{fig:unikalna_nazwa}
 \end{figure}
@@ -55,7 +75,7 @@ moment bezwładności przez kondensator, a współczynnik tarcia przez rezystanc
 Ten fragment układu rozwiązuje równanie dynamiki Newtona dla ruchu obrotowego:
 
 \[
-T_{em}- T_{L}= J \cdot \frac{d\omega_{m}}{dt} + B \omega_{m}
+T_{em}(t) = J \cdot \frac{d\omega_{m}(t)}{dt} + B \omega_{m}(t) + T_{L}(t)
 \]
 Układ opiera się na sumowaniu prądów w głównym węźle omega, którego potencjał (napięcie) jest analogiem prędkości kątowej maszyny $\omega_m$. 
 Poszczególne elementy obwodu pełnią następujące funkcje:
@@ -86,7 +106,8 @@ Drugi obwód realizuje równanie kinematyczne. Jego zadaniem jest całkowanie w 
 \begin{itemize}
     \item \textbf{Źródło B25 ($I = V(\texttt{omega})$):} Jest to źródło prądowe sterowane napięciem. Jest źródłem prądu o wartości liczbowo równej wyliczonej prędkości obrotowej z węzła~\texttt{omega} wylicoznej z poprzedniego obwodu.
 
-    \item \textbf{Kondensator C2:} Element pełniący funkcję całkującą  prąd ze źródła B25. Odkładające się na nim napięcie w węźle \texttt{theta} jest wprost proporcjonalne do pokonanego przez wirnik kąta.
+    \item \textbf{Kondensator C2:} Element pełniący funkcję całkującą  prąd ze źródła B25. Odkładające się na nim napięcie w węźle theta jest wprost 
+    proporcjonalne do elektrycznego kąta obrotu wirnika.
 
     \item \textbf{Rezystor R6 (10\,M$\Omega$):} Ma bardzo dużą rezystancję i z punktu widzenia fizyki modelowanej maszyny jest całkowicie pomijalny. Został dodany wyłącznie w celu stabilizacji obliczeniowej symulatora LTSpice.
 \end{itemize}
@@ -120,7 +141,7 @@ opisuje trapezoidalny kształt przebiegu w funkcji położenia elektrycznego wir
 
 W miarę upływu czasu i narastania prędkości kątowej amplitudy napięć fazowych 
 systematycznie rosną, osiągając wartości rzędu $\pm 90\,\text{V}$ pod koniec 
-symulacji. Trzy przebiegi są względem siebie przesunięte o $120°$ elektrycznych, 
+symulacji. Trzy przebiegi są względem siebie przesunięte o $120^{\circ}$ elektrycznych, 
 co odpowiada symetrycznej budowie trójfazowej maszyny.
 
 Charakterystyczny trapezoidalny kształt przebiegów -- widoczny wyraźnie 
@@ -129,7 +150,8 @@ konstytutywną silników BLDC, odróżniającą je od maszyn synchronicznych
 z sinusoidalnym rozkładem indukcji w szczelinie powietrznej. Płaski 
 ``grzbiet'' trapezu odpowiada przedziałowi kątowemu, w którym dany biegun 
 magnetyczny wirnika jest w pełni naprzeciwko uzwojenia stojana.
-\subsection{Napięcie międzyfazowe}
+
+\subsection{Napięcia międzyfazowe}
 
 \begin{figure}[h]
     \centering
@@ -139,31 +161,16 @@ magnetyczny wirnika jest w pełni naprzeciwko uzwojenia stojana.
     \label{fig:napiecia_miedzyfazowe}
 \end{figure}
 
-Wykres przedstawia przebiegi napięć międzyfazowych $V_{AB}$, $V_{BC}$ oraz $V_{CA}$ 
-wyznaczonych jako różnice odpowiednich napięć fazowych. Analogicznie do napięć 
-fazowych, amplitudy narastają od zera wraz z rosnącą prędkością kątową wirnika.
+Wykres przedstawia przebiegi napięć międzyfazowych $V_{AB}$, $V_{BC}$ oraz $V_{CA}$,
+wyznaczonych jako różnice odpowiednich napięć fazowych. Podobnie jak napięcia fazowe,
+ich amplitudy narastają od zera wraz z rosnącą prędkością kątową wirnika podczas rozruchu.
 
-Napięcia międzyfazowe zachowują trapezoidalny kształt charakterystyczny dla 
-maszyn BLDC, przy czym ich wartość szczytowa jest $\sqrt{3}$~razy większa 
-od amplitudy napięć fazowych:
+Przebiegi zachowują trapezoidalny kształt charakterystyczny dla maszyn BLDC
+i są wzajemnie przesunięte o $120^{\circ}$ elektrycznych.
+Obserwowana wartość szczytowa rzędu $\pm 180\,\text{V}$ wynika z superpozycji
+dwóch napięć fazowych o amplitudzie $\approx 90\,\text{V}$,
+w chwilach gdy oba przebiegi osiągają plateau trapezu z przeciwnymi znakami.
 
-\begin{equation}
-    U_{mf} = \sqrt{3} \cdot U_f
-    \label{eq:napiecie_miedzyfazowe}
-\end{equation}
-
-Pod koniec symulacji wartości szczytowe osiągają około $\pm 180\,\text{V}$, 
-co pozostaje w zgodzie z powyższą zależnością dla $U_f \approx 90\,\text{V}$. 
-Przebiegi są wzajemnie przesunięte o $120°$ elektrycznych, zachowując 
-symetrię trójfazową układu.
-\subsection{Sygnały czujników Halla}
-Masz rację, przepraszam! Teraz widzę — to są prostokąty 0/1, tylko są **tak wąskie** względem całej osi czasu że wyglądają jak linie. Wykres jest poprawny.
-
-Problem jest ten sam co wcześniej — **za długi zakres czasu**. Na początku symulacji wirnik kręci się wolno więc okresy są długie i widać prostokąty, ale pod koniec okresy są bardzo krótkie i zbocza zlewają się wizualnie.
-
-Wykres jest **merytorycznie poprawny**, możesz go opisać. Oto LaTeX:
-
-```latex
 \subsection{Sygnały czujników Halla}
 
 \begin{figure}[H]
@@ -174,33 +181,25 @@ Wykres jest **merytorycznie poprawny**, możesz go opisać. Oto LaTeX:
     \label{fig:hall}
 \end{figure}
 
-Wykres przedstawia przebiegi sygnałów trzech czujników Halla rozmieszczonych 
-w stojanie maszyny w odstępach $120°$ elektrycznych. Każdy czujnik generuje 
-sygnał logiczny o poziomach $0\,\text{V}$ i $1\,\text{V}$, zmieniający stan 
-w momencie, gdy wirujący magnes trwały przekracza jego pozycję.
+Wykres przedstawia sygnały trzech czujników Halla rozmieszczonych w stojanie
+w odstępach $120^{\circ}$ elektrycznych. Każdy czujnik generuje sygnał logiczny
+$0$ lub $1$, zmieniający stan w momencie przekroczenia jego pozycji przez magnes wirnika.
 
-Każdy sygnał pozostaje w stanie wysokim przez $180°$ elektrycznych, 
-a następnie przez kolejne $180°$ w stanie niskim, co odpowiada 
-jednej pełnej parze biegunów wirnika. Trzy sygnały tworzą łącznie 
-sześć różnych kombinacji stanów logicznych w obrębie jednego okresu 
-elektrycznego -- każda kombinacja identyfikuje jednoznacznie jeden 
-z sześciu sektorów komutacyjnych:
+Każdy sygnał pozostaje w stanie wysokim przez $180^{\circ}$ elektrycznych,
+a następnie przez kolejne $180^{\circ}$ w stanie niskim.
+Trzy sygnały tworzą łącznie sześć różnych kombinacji stanów logicznych
+w obrębie jednego okresu elektrycznego, z których każda jednoznacznie
+identyfikuje aktualny sektor komutacyjny
+(sekwencja: $100 \to 110 \to 010 \to 011 \to 001 \to 101$).
+Wraz z rosnącą prędkością zbocza sygnałów zagęszczają się,
+co widoczne jest w końcowej fazie symulacji.
 
-\begin{equation}
-    \text{stan} = 4 \cdot H_A + 2 \cdot H_B + H_C \in \{1,2,3,4,5,6\}
-    \label{eq:stan_halla}
-\end{equation}
-
-Wraz z rosnącą prędkością kątową wirnika okresy przełączeń skracają się, 
-co na wykresie objawia się zagęszczaniem zbocz sygnałów w końcowej 
-fazie symulacji.
-```
 \subsection{Prędkość i położenie kątowe}
 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{images/predkoscpolozenie.png}
+    \includegraphics[width=0.6\textwidth]{images/predkoscpolozenie.png}
     \caption{Prędkość kątowa $V(\omega)$ (niebieski) oraz położenie kątowe 
              $V(\theta)$ (zielony) podczas rozruchu}
     \label{fig:omega_theta}
@@ -212,5 +211,160 @@ wyznaczone przez analogowe obwody całkujące modelu.
 
 Prędkość kątowa $\omega_m$ narasta od zera zgodnie z charakterystyką 
 wykładniczą, dążąc asymptotycznie do wartości ustalonej wyznaczonej 
-przez równowagę momentu napędowego i strat mechanicznyc
+przez równowagę momentu napędowego i strat mechanicznych.Stała 
+czasowa tego procesu jest zdeterminowana przez stosunek momentu 
+bezwładności wirnika do współczynnika tłumienia:
+
+\begin{equation}
+    \tau = \frac{J}{B}
+    \label{eq:stala_czasowa}
+\end{equation}
+
+Położenie kątowe $\theta_e$ jest całką w czasie prędkości kątowej, 
+zgodnie z zależnością kinematyczną $\theta_e = \int_0^t \omega_m \, d\tau$.
+Na wykresie objawia się to przebiegiem zbliżonym do liniowego -- 
+w miarę jak $\omega_m$ osiąga stan ustalony, przyrost $\theta_e$ 
+staje się coraz bardziej jednostajny. Ujemny znak obu sygnałów 
+wynika z przyjętej konwencji kierunku obrotu wirnika w modelu.
+
+\section{Praca silnikowa}
+
+\subsection{Reguły załączania kluczy przekształtnika}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/reguly_zalaczania_kluczy.png}
+    \caption{Logika sterowania kluczami przekształtnika na podstawie sygnałów czujników Halla}
+    \label{fig:reguly_kluczy}
+\end{figure}
+
+Przekształtnik trójfazowy składa się z sześciu kluczy (K1--K6) zgrupowanych 
+w trzy gałęzie: po jednym kluczu górnym (K1, K2, K3) i dolnym (K4, K5, K6) 
+na każdą fazę. W każdej chwili przewodzą dokładnie dwa klucze -- jeden górny 
+i jeden dolny z różnych gałęzi -- tworząc zamkniętą pętlę prądu przez dwie 
+fazy uzwojenia.
+
+Sygnał sterujący każdym kluczem wyznaczany jest na podstawie dwóch 
+spośród trzech sygnałów czujników Halla H1, H2, H3. Reguły załączania 
+są następujące:
+
+\begin{itemize}
+    \item \textbf{K1 (górny, faza A):} aktywny gdy $H_1 = 1$ i $H_3 = 0$
+    \item \textbf{K2 (górny, faza B):} aktywny gdy $H_2 = 1$ i $H_1 = 0$
+    \item \textbf{K3 (górny, faza C):} aktywny gdy $H_3 = 1$ i $H_2 = 0$
+    \item \textbf{K4 (dolny, faza A):} aktywny gdy $H_1 = 0$ i $H_3 = 1$
+    \item \textbf{K5 (dolny, faza B):} aktywny gdy $H_2 = 0$ i $H_1 = 1$
+    \item \textbf{K6 (dolny, faza C):} aktywny gdy $H_3 = 0$ i $H_2 = 1$
+\end{itemize}
+
+Każdy klucz zależy tylko od dwóch sygnałów Halla -- jeden musi być wysoki, 
+drugi niski -- trzeci sygnał jest w danym sektorze nieistotny. 
+W ten sposób trzy sygnały binarne czujników jednoznacznie wyznaczają 
+jeden z sześciu sektorów komutacyjnych i odpowiadającą mu parę kluczy.
+
+\subsection{Sygnały czujników Halla}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/silnik_hall.png}
+    \caption{Sygnały czujników Halla w pracy silnikowej:
+             $V_{H1}$ (zielony), $V_{H2}$ (niebieski), $V_{H3}$ (czerwony)}
+    \label{fig:hall_silnik}
+\end{figure}
+
+Sygnały czujników Halla w pracy silnikowej mają analogiczny charakter 
+do opisanych w sekcji prądnicowej -- każdy z trzech sygnałów przyjmuje 
+wartości logiczne $0$ lub $1$, pozostając w stanie wysokim przez 
+$180^{\circ}$ elektrycznych i są wzajemnie przesunięte o $120^{\circ}$.
+
+Zasadnicza różnica względem pracy prądnicowej polega na tym, że okresy 
+przełączeń są tu stałe od początku symulacji -- prędkość kątowa wirnika 
+osiąga wartość ustaloną niemal natychmiastowo ze względu na małą 
+bezwładność modelu ($J = 10\,\text{m}\,\text{kg}{\cdot}\text{m}^2$), 
+dlatego na wykresie nie obserwuje się zagęszczania zbocz charakterystycznego 
+dla rozruchu.
+
+\subsection{Momenty generowane przez poszczególne fazy}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/prady_fazowe.png}
+    \caption{Momenty elektromagnetyczne generowane przez poszczególne fazy:
+             $I(B20)$ -- faza A (niebieski), $I(B18)$ -- faza B (czerwony), 
+             $I(B7)$ -- faza C (zielony)}
+    \label{fig:momenty_fazowe}
+\end{figure}
+
+Wykres przedstawia momenty elektromagnetyczne generowane przez każdą 
+z trzech faz silnika, reprezentowane w modelu przez prądy źródeł 
+sterowanych B20, B18 i B7. Każda faza generuje moment tylko w czasie 
+gdy jest aktywna -- czyli gdy przepływa przez nią prąd zgodnie 
+z aktualnym sektorem komutacyjnym.
+
+Przebiegi są przesunięte o $120^{\circ}$ i następują po sobie naprzemiennie, 
+zapewniając ciągłość napędu. W każdej chwili aktywne są dokładnie dwie fazy, 
+trzecia pozostaje wyłączona (moment zerowy). Na początku symulacji 
+($t \approx 0{,}05\,\text{s}$) widoczny jest pik rozruchowy sięgający 
+około $15\,\text{A}$, po czym przebiegi stabilizują się na poziomie 
+około $7\,\text{A}$ z regularnym tętnieniem wynikającym z kolejnych 
+przełączeń kluczy przekształtnika.
+
+\subsection{Prędkość kątowa maszyny}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/silnik_omega.png}
+    \caption{Prędkość kątowa wirnika $V(\omega)$ w pracy silnikowej}
+    \label{fig:omega_silnik}
+\end{figure}
+
+Wykres przedstawia prędkość kątową wirnika $\omega_m$ podczas pracy 
+silnikowej. Ze względu na małą bezwładność modelu ($J = 10\,\text{m}\,
+\text{kg}{\cdot}\text{m}^2$) silnik osiąga stan ustalony niemal 
+natychmiastowo, bez wyraźnej fazy rozruchu.
+
+Prędkość ustala się na poziomie około $26{-}27\,\text{rad/s}$, 
+gdzie moment elektromagnetyczny równoważy straty mechaniczne 
+opisane współczynnikiem tarcia $B$. Widoczne regularne tętnienie 
+prędkości z amplitudą około $\pm 1{,}5\,\text{rad/s}$ jest 
+bezpośrednią konsekwencją komutacji 6-krokowej -- każde przełączenie 
+pary kluczy powoduje chwilową zmianę momentu wypadkowego, 
+co przy skończonej bezwładności wirnika przekłada się na 
+oscylacje prędkości wokół wartości średniej.
+
+
+\section{Położenie wirnika a sygnały czujników Halla}
+
+Podczas jednego pełnego obrotu elektrycznego wirnika czujniki Halla 
+generują sekwencję sześciu różnych kombinacji stanów logicznych, 
+z których każda odpowiada innemu przedziałowi położenia kątowego 
+$\theta_e$ i jednoznacznie wyznacza parę kluczy do załączenia.
+Powiązanie między położeniem wirnika, sygnałami Halla 
+a aktywnymi kluczami przekształtnika przedstawia tabela~\ref{tab:sektory}.
+
+\begin{table}[H]
+\centering
+\caption{Sektory komutacyjne silnika BLDC}
+\label{tab:sektory}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Sektor} & \textbf{Położenie $\theta_e$} & \textbf{H1 H2 H3} & \textbf{Klucze} & \textbf{Kierunek prądu} \\
+\hline
+1 & $0^{\circ}$~--~$60^{\circ}$   & 1 0 0 & K1, K6 & A $\rightarrow$ C \\
+2 & $60^{\circ}$~--~$120^{\circ}$  & 1 1 0 & K1, K5 & A $\rightarrow$ B \\
+3 & $120^{\circ}$~--~$180^{\circ}$ & 0 1 0 & K2, K4 & B $\rightarrow$ A \\
+4 & $180^{\circ}$~--~$240^{\circ}$ & 0 1 1 & K2, K6 & B $\rightarrow$ C \\
+5 & $240^{\circ}$~--~$300^{\circ}$ & 0 0 1 & K3, K4 & C $\rightarrow$ A \\
+6 & $300^{\circ}$~--~$360^{\circ}$ & 1 0 1 & K3, K5 & C $\rightarrow$ B \\
+\hline
+\end{tabular}
+\end{table}
+
+W każdym sektorze aktywne są dokładnie dwa klucze -- jeden górny 
+i jeden dolny -- a prąd płynie przez dwie fazy uzwojenia stojana 
+w kierunku zapewniającym maksymalny moment obrotowy dla danego 
+położenia wirnika. Przejście do kolejnego sektora następuje 
+w momencie zmiany stanu jednego z czujników Halla, co widoczne 
+jest na oscylogramie jako zbocze sygnału H1, H2 lub H3.
+
 \end{document}
